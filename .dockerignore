@@ -1,8 +1,11 @@
 node_modules
 out
+.git
+.github
+.gitignore
 .DS_Store
 *.log
 .env
+test
 test-results
 playwright-report
-test/e2e/.e2e-build
