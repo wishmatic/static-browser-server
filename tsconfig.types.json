@@ -1,21 +1,22 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true,
-    "skipLibCheck": true,
-    "emitDeclarationOnly": true,
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "inlineSourceMap": true,
-    "useUnknownInCatchVariables": false,
-    "resolveJsonModule": true,
-    "target": "es2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
-    "outDir": "./out"
-  },
-  "exclude": ["node_modules", "out"],
-  "include": ["src"]
+	"compilerOptions": {
+		"strict": true,
+		"noImplicitAny": true,
+		"skipLibCheck": true,
+		"emitDeclarationOnly": true,
+		"allowSyntheticDefaultImports": true,
+		"declaration": true,
+		"moduleResolution": "bundler",
+		"esModuleInterop": true,
+		"inlineSourceMap": true,
+		"useUnknownInCatchVariables": false,
+		"resolveJsonModule": true,
+		"target": "es2020",
+		"module": "preserve",
+		"lib": ["ES2020"],
+		"rootDir": "./src",
+		"outDir": "./out"
+	},
+	"exclude": ["node_modules", "out"],
+	"include": ["src"]
 }

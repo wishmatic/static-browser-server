@@ -1,5 +1,5 @@
 export function getWorkerInstance(
-  registration: ServiceWorkerRegistration
+	registration: ServiceWorkerRegistration,
 ): ServiceWorker | null {
-  return registration.installing || registration.waiting || registration.active;
+	return registration.installing || registration.waiting || registration.active;
 }
