@@ -1,8 +1,20 @@
-# Static Browser Server for Sandpack
+# Static Browser Server (SBS)
 
-> This guide has been modified to match my infrastructure and software choices.
+## Introduction
 
-The static browser server enables secure, isolated browser environments for running static web content. It works by:
+### What is this fork?
+
+The upstream of this fork is:
+[LibreChat-AI/static-browser-server](https://github.com/LibreChat-AI/static-browser-server). It is perfectly servicable
+if you wish to deploy it yourself as the security model is good as of writing and it does not need to change often/at
+all.
+
+However, if you wish to deploy a Docker container, this repo publishes an image. It also does things slightly
+differently to my preference, including tests and PNPM, but it is functionally identical.
+
+### Okay, what does this fork and the upstream do?
+
+This repo and its upstream enables secure, isolated browser environments for running static web content. It works by:
 
 1. Creating a unique ID for each preview session
 2. Prepending this ID to the domain as a subdomain (e.g., `[random-id]-preview.static.domain.com`)
@@ -11,81 +23,48 @@ The static browser server enables secure, isolated browser environments for runn
 
 For a security standpoint, it's worth noting that this doesn't host any websites.
 
-This repository publishes a private Docker image that can be used to run the server and safely use `:latest` as a tag
+This repository publishes a public Docker image that can be used to run the server and safely use `:latest` as a tag
 to be updated automatically with each release, some automated through Renovate.
 
 ## Self-Hosting
 
 ### Requirements
 
-1.  **Domain Name:** A domain you control
-2.  **Wildcard DNS:** Ability to configure wildcard DNS records that will match the pattern
-    `RANDOMID-[your-configured-domain]`. For example, if you configure
-    `SANDPACK_STATIC_BUNDLER_URL=https://preview.yourdomain.com` (a LibreChat-specific environment variable), you need
-    DNS to support both `preview.yourdomain.com` and any subdomain of your domain (e.g., `*.yourdomain.com`)
-3.  **Wildcard SSL/TLS Certificate:** A valid certificate covering both your base domain and the wildcard domain. For
-    example, if you configure `SANDPACK_STATIC_BUNDLER_URL=https://preview.yourdomain.com`, your certificate needs to
-    cover both `preview.yourdomain.com` and `*.yourdomain.com`. Standard wildcard certificates (not specific to the
-    prefix pattern) work correctly with this system
-4.  **Reverse Proxy:** A server like Nginx, Caddy, Traefik, etc., capable of handling HTTPS/TLS termination and
-    proxying requests
-5.  **Node.js Environment:** A server environment to run the Node.js static server application
-6.  **HTTPS is Mandatory:** Service Workers require a secure context, meaning your self-hosted static server
-    **must** be served over HTTPS with a valid certificate
+- A domain name you control.
+- A wildcard DNS record on that domain name.
+  - You must match the pattern: `RANDOMID-[your-configured-domain]`
+    - E.g., in LibreChat, if you configured `SANDPACK_STATIC_BUNDLER_URL=https://preview.yourdomain.com`, you need DNS
+      to support both `preview.yourdomain.com` and any subdomain of your domain (e.g., `*.yourdomain.com`).
+- A wildcard SSL/TLS certificate.
+  - This README.md does not explain how to do this, but our recommendation is Caddy or Nginx Proxy Manager with a
+    wildcard SSL/TLS certificate through LetsEncrypt.
+- A reverse proxy like Nginx, Nginx Proxy Manager, Caddy, Traefik, and so on.
 
-### The URL Pattern
-
-The most important thing to understand about this system is how the `SANDPACK_STATIC_BUNDLER_URL` configuration works
-(this is a LibreChat environment variable, not a variable for this static server):
-
-1. **Random ID Prefixing:** When you set `SANDPACK_STATIC_BUNDLER_URL` to any value, the system will **prepend a
-   random ID** to the **entire hostname** part of that URL
-2. **Examples:**
-    - If you set: `SANDPACK_STATIC_BUNDLER_URL=https://yourdomain.com`
-        - Requests go to: `https://RANDOMID-yourdomain.com`
-    - If you set: `SANDPACK_STATIC_BUNDLER_URL=https://sandpack.yourdomain.com`
-        - Requests go to: `https://RANDOMID-sandpack.yourdomain.com`
-3. **DNS and Certificate Requirements:** Your DNS and SSL certificates must be configured to handle this pattern
-4. **Choosing Your Domain:** You can use any domain structure you prefer (single domain, subdomain, multiple
-   subdomains), as long as you configure your DNS and certificates to handle the random ID prefix pattern
+HTTPS from LibreChat to the static browser server is mandatory; browser Service Workers require a secure context.
 
 ### Deployment
 
-- Install dependencies (`npm install`)
-- Build the production assets (`npm run build`)
-- Deploy the built Node.js application, probably using Docker
-- Ensure you run the compiled server script (e.g., `node out/servers/preview-server.js`), **not** using devtools like
-  `esbuild-register`
+Deploy via Docker:
 
-Specific to Librechat, set `SANDPACK_STATIC_BUNDLER_URL=https://preview.yourdomain.com`.
+```sh
+docker run -d ghcr.io/wishmatic/sbs
+```
 
-### Security Considerations for Production
+In LibreChat, set `SANDPACK_STATIC_BUNDLER_URL=https://preview.yourdomain.com`.
 
-1. **Rate limiting**: Implement rate limiting to prevent abuse
-2. **Proper SSL configuration**: Use modern TLS versions and secure ciphers
-3. **Regular certificate renewal**: Set up auto-renewal for your wildcard certificates
-4. **Monitoring**: Implement proper monitoring for server health and security issues
-5. **Firewall rules**: Restrict access to only necessary ports
-6. **Content Security Policy**: Consider implementing CSP headers for additional security
+### Security in Production
 
-## How It Works (Simplified)
+If you're running in production:
 
-1.  **Static Server Deployment**: The Node.js application you deploy (from this repository). It serves the core relay
-    and service worker files
-2.  **Relay**: A hidden iframe loaded by the client application (e.g., Sandpack within LibreChat) from your deployed
-    server's domain. It acts as a communication bridge
-3.  **Service Worker**: Registered by the Relay. It intercepts network requests _within the isolated preview
-    environment_ (e.g., `[random-id]-sandpack.yourdomain.com`)
+- Implement rate limiting at the CDN or reverse proxy level to prevent abuse.
+- Use modern TLS versions and secure ciphers.
+- Set up auto-renewal for your wildcard certificates.
+- Implement proper observability and monitoring for server health and security issues.
+- Restrict access to only necessary ports and implement a Content Security Policy.
 
-When a preview is initialized by the client application (like Sandpack in LibreChat):
+## License
 
-1.  The client generates a unique preview URL by prepending a random ID to your configured domain (e.g., if you set
-    `SANDPACK_STATIC_BUNDLER_URL=https://preview.yourdomain.com`, it becomes `https://RANDOMID-preview.yourdomain.com`)
-2.  The client loads the Relay iframe from your server (e.g., `https://preview.yourdomain.com/__csb_relay/`)
-3.  The Relay registers the Service Worker for the unique preview origin
-4.  The Service Worker intercepts requests within the preview iframe
-5.  Requests are sent back to the client application (via the Relay) to get the actual file content
-6.  The client application provides the content (e.g., HTML, CSS, JS)
-7.  The Service Worker serves this content within the isolated preview iframe
+The upstream fork specified Apache 2.0. This repo uses the same license.
 
-This architecture ensures complete isolation between different previews, as each preview runs in its own browser origin.
+This project is not affiliated with or endorsed by LibreChat nor CodeSandbox. Those names are trademarks of their
+respective owners and are used here only to describe compatibility.
