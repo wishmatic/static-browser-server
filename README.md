@@ -1,4 +1,4 @@
-# Static Browser Server (SBS)
+# Static Browser Server
 
 ## Introduction
 
@@ -32,12 +32,12 @@ to be updated automatically with each release, some automated through Renovate.
 
 - A domain name you control.
 - A wildcard DNS record on that domain name.
-  - You must match the pattern: `RANDOMID-[your-configured-domain]`
-    - E.g., in LibreChat, if you configured `SANDPACK_STATIC_BUNDLER_URL=https://preview.yourdomain.com`, you need DNS
-      to support both `preview.yourdomain.com` and any subdomain of your domain (e.g., `*.yourdomain.com`).
+    - You must match the pattern: `RANDOMID-[your-configured-domain]`
+        - E.g., in LibreChat, if you configured `SANDPACK_STATIC_BUNDLER_URL=https://preview.yourdomain.com`, you need DNS
+          to support both `preview.yourdomain.com` and any subdomain of your domain (e.g., `*.yourdomain.com`).
 - A wildcard SSL/TLS certificate.
-  - This README.md does not explain how to do this, but our recommendation is Caddy or Nginx Proxy Manager with a
-    wildcard SSL/TLS certificate through LetsEncrypt.
+    - This README.md does not explain how to do this, but our recommendation is Caddy or Nginx Proxy Manager with a
+      wildcard SSL/TLS certificate through LetsEncrypt.
 - A reverse proxy like Nginx, Nginx Proxy Manager, Caddy, Traefik, and so on.
 
 HTTPS from LibreChat to the static browser server is mandatory; browser Service Workers require a secure context.
@@ -47,7 +47,7 @@ HTTPS from LibreChat to the static browser server is mandatory; browser Service 
 Deploy via Docker:
 
 ```sh
-docker run -d ghcr.io/wishmatic/sbs
+docker run -d ghcr.io/wishmatic/static-browser-server
 ```
 
 In LibreChat, set `SANDPACK_STATIC_BUNDLER_URL=https://preview.yourdomain.com`.
