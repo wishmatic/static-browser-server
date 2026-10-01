@@ -39,7 +39,7 @@
 		"happy-dom": "^20.11.2",
 		"mustache": "^4.2.0",
 		"typescript": "^7.0.2",
-		"vitest": "5.0.1"
+		"vitest": "5.0.2"
 	},
 	"dependencies": {
 		"@fastify/cors": "^11.3.0",
