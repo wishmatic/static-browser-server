@@ -36,7 +36,7 @@
 		"base-x": "^5.0.1",
 		"esbuild": "^0.28.2",
 		"esbuild-register": "^3.6.0",
-		"happy-dom": "^20.11.2",
+		"happy-dom": "^21.0.0",
 		"mustache": "^4.2.0",
 		"typescript": "^7.0.2",
 		"vitest": "5.0.5"
