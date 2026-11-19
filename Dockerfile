@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:24-alpine AS build
+FROM node:26-alpine AS build
 
 RUN npm install -g pnpm@11
 
@@ -12,7 +12,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build
 
-FROM node:24-alpine
+FROM node:26-alpine
 
 ENV NODE_ENV=production
 ENV PORT=3000
